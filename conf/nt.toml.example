@@ -1,0 +1,16 @@
+# nt.toml — New Theory inference API config for MA2-YAM
+#
+# This starter uses mock callbacks. No hardware config is required.
+# NT_API_KEY is passed via environment variable (not this file):
+#
+#   export NT_API_KEY=your_key_here
+#   python run.py
+#
+# When you wire real hardware, this file holds site-specific config
+# (arm IPs, camera serial numbers, extrinsics). For MA2-YAM hardware
+# details see the model page — joint layout (left arm 0-6, right arm
+# 7-13, gripper-last) and camera roles (top=overhead, left/right=wrist).
+#
+# Copy to ~/.config/nt/nt.toml and fill in hardware values when ready:
+#   mkdir -p ~/.config/nt
+#   cp conf/nt.toml.example ~/.config/nt/nt.toml
