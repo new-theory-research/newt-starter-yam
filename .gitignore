@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.venv/
+dist/
+build/
+*.egg-info/
+.python-version
+.env
+local-*/
+*.swp
+.DS_Store
