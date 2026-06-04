@@ -74,7 +74,7 @@ elapsed_s:      10.x
 
 **`uv sync` fails with authentication errors**
 
-Your SSH key isn't registered with the `new-theory-research` org. Verify your key is listed under your GitHub account settings, then ask your New Theory contact to add you to the org.
+Test SSH access before syncing: `ssh -T git@github.com` should print `Hi <username>! You've successfully authenticated`. If it fails, your key isn't registered with the `new-theory-research` org — verify the key is listed under your GitHub account settings and ask your New Theory contact to add you to the org.
 
 **Confusing 4404 errors on startup**
 
