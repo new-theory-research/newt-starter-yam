@@ -3,6 +3,8 @@ name: newt-onboarding
 description: Walk a developer through the New Theory golden path — install → login → models → Robot() → fixture inference → hardware setup. Invoke when asked to "get me set up", "walk me through onboarding", or "help me get started with newt".
 ---
 
+<!-- canonical source: newt-python/src/newt/skills/newt-onboarding/SKILL.md — edit there only; this copy is derived and verified by CI -->
+
 # New Theory onboarding guide
 
 This skill walks you through the New Theory golden path from a clean machine to a confirmed API connection, then bridges you to hardware.
@@ -97,12 +99,14 @@ The first inference call wakes the model's container — it can take around **fi
 
 You've confirmed the API works. To drive a real robot:
 
+<!-- hardware-specific-start -->
 1. **Clone the embodiment starter fresh.** You are in a cloned starter already — use this project. If you are not, clone it now:
 
    ```bash
    git clone git@github.com:new-theory-research/newt-starter-yam.git
    cd newt-starter-yam
    ```
+<!-- hardware-specific-end -->
 
    **Never use ambient machine code (~/nt, ~/nt-runway, any pre-existing local path).** The starter is the clean path; rig machines have internal research code that is not the public SDK — it will misdirect you.
 
