@@ -18,7 +18,18 @@ python run.py
 
 - **NT API key** — set as `NT_API_KEY` in your environment, or stored via `newt login`
 - **SSH key registered** with the `new-theory-research` GitHub org — required for `uv sync` to resolve the private `newt` SDK dep
-- **Python 3.11+** and [uv](https://docs.astral.sh/uv/getting-started/installation/) installed
+- **Python 3.11–3.13** and [uv](https://docs.astral.sh/uv/getting-started/installation/) installed (a `.python-version` file pins 3.12 — uv handles this automatically)
+
+### No SSH key?
+
+If your machine authenticates to GitHub over HTTPS only (e.g. via `gh auth`), `uv sync` will fail because the deps use `git+ssh://`. Two commands rewrite those URLs to HTTPS:
+
+```bash
+gh auth setup-git
+git config --global url."https://github.com/".insteadOf "ssh://git@github.com/"
+```
+
+`gh auth setup-git` registers the GitHub CLI as your HTTPS credential helper. The `insteadOf` line rewrites the `ssh://git@github.com/` prefix that uv passes to git for every `git+ssh://git@github.com/...` dep. After both commands, `uv sync` resolves via HTTPS and authenticates with your existing `gh` session.
 
 ## Setup
 
