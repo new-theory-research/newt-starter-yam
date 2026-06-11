@@ -16,6 +16,7 @@ python run.py
 
 ## Prerequisites
 
+- **newt CLI** — installed globally: `uv tool install "git+ssh://git@github.com/new-theory-research/newt-python.git"`. If you followed [Getting started](https://newtheory-docs.vercel.app/docs/getting-started), you have this.
 - **NT API key** — set as `NT_API_KEY` in your environment, or stored via `newt login`
 - **SSH key registered** with the `new-theory-research` GitHub org — required for `uv sync` to resolve the private `newt` SDK dep
 - **Python 3.11–3.13** and [uv](https://docs.astral.sh/uv/getting-started/installation/) installed (a `.python-version` file pins 3.12 — uv handles this automatically)
