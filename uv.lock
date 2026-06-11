@@ -923,7 +923,7 @@ wheels = [
 [[package]]
 name = "newt"
 version = "0.0.1"
-source = { git = "ssh://git@github.com/new-theory-research/newt-python.git?rev=e7116962afce744d4dd78e358321817a912313be#e7116962afce744d4dd78e358321817a912313be" }
+source = { git = "ssh://git@github.com/new-theory-research/newt-python.git?rev=1c559dfe36f343e78885811e07f15522d1bc2941#1c559dfe36f343e78885811e07f15522d1bc2941" }
 dependencies = [
     { name = "fastapi" },
     { name = "httpx" },
@@ -948,7 +948,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "newt", git = "ssh://git@github.com/new-theory-research/newt-python.git?rev=e7116962afce744d4dd78e358321817a912313be" },
+    { name = "newt", git = "ssh://git@github.com/new-theory-research/newt-python.git?rev=1c559dfe36f343e78885811e07f15522d1bc2941" },
     { name = "numpy", specifier = ">=1.26" },
 ]
 
