@@ -1,0 +1,119 @@
+name: Install golden
+
+# ── YAM starter install golden ──────────────────────────────────────────────
+# Guards the documented README install sequence on both platforms.
+# clone → uv sync → import embodiment → protocol check
+#
+# Private-dep secret required:
+#   NEWT_PYTHON_DEPLOY_KEY  — read access to new-theory-research/newt-python
+#
+# Set with:
+#   gh secret set NEWT_PYTHON_DEPLOY_KEY --repo new-theory-research/newt-starter-yam < <key-file>
+# ─────────────────────────────────────────────────────────────────────────────
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+  schedule:
+    - cron: '0 0 * * 1'  # weekly, Mondays 00:00 UTC — bit-rot probe
+  workflow_dispatch:
+
+jobs:
+  install-golden:
+    name: Install golden (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, ubuntu-latest]
+    env:
+      UV_PYTHON: "3.11"
+
+    steps:
+      - name: Require private-dep secret
+        run: |
+          if [ -z "$NEWT_PYTHON_DEPLOY_KEY" ]; then
+            echo "::error title=Missing secret::NEWT_PYTHON_DEPLOY_KEY not set"
+            echo ""
+            echo "Generate a read-only deploy key for new-theory-research/newt-python"
+            echo "then: gh secret set NEWT_PYTHON_DEPLOY_KEY --repo new-theory-research/newt-starter-yam < <key-file>"
+            exit 1
+          fi
+          echo "Secret present: NEWT_PYTHON_DEPLOY_KEY (len=${#NEWT_PYTHON_DEPLOY_KEY})"
+        env:
+          NEWT_PYTHON_DEPLOY_KEY: ${{ secrets.NEWT_PYTHON_DEPLOY_KEY }}
+
+      - uses: actions/checkout@v4
+
+      - name: Set up SSH for newt-python
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.NEWT_PYTHON_DEPLOY_KEY }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Import clean — embodiment importable without hardware or config
+        run: |
+          uv run python -c "
+          from embodiment import YamBimanual
+          print('embodiment import: OK')
+          "
+
+      - name: Protocol check — YamBimanual satisfies Embodiment protocol
+        run: |
+          uv run python -c "
+          import numpy as np
+          from embodiment import YamBimanual
+          from newt import Embodiment
+
+          rig = YamBimanual.from_config()
+
+          assert isinstance(rig, Embodiment), 'YamBimanual does not satisfy Embodiment protocol'
+
+          obs = rig.read_state()
+          assert obs['state'].shape == (14,), f'state shape: {obs[\"state\"].shape}'
+          assert obs['state'].dtype == np.float32
+
+          for cam in ['top_cam', 'left_cam', 'right_cam']:
+              img = obs['images'][cam]
+              assert img.shape == (3, 378, 378), f'{cam}: {img.shape}'
+              assert img.dtype == np.uint8
+
+          chunk = np.zeros((30, 14), dtype=np.float32)
+          rig.execute(chunk)
+          assert rig._chunks_received == 1
+
+          print('protocol check: PASSED')
+          "
+
+  notify-on-failure:
+    name: Notify — file/update GitHub issue on cron red
+    needs: [install-golden]
+    if: failure() && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Report failure via GitHub issue
+        run: |
+          TITLE="[install-golden] YAM starter install broken"
+          DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          BODY="Weekly install-golden probe failed at ${DATE}.\n\n**Run:** ${RUN_URL}\n**Trigger:** ${{ github.event_name }}\n\nThe newt-starter-yam install sequence is broken. Check uv.lock, the newt dep pin, and embodiment.py."
+
+          EXISTING=$(gh issue list --repo "${{ github.repository }}" --state open --json number,title \
+            --jq '.[] | select(.title == "'"${TITLE}"'") | .number' | head -1)
+
+          if [ -n "$EXISTING" ]; then
+            printf '%b' "$BODY" | gh issue comment "$EXISTING" --repo "${{ github.repository }}" --body-file -
+          else
+            printf '%b' "$BODY" | gh issue create --repo "${{ github.repository }}" --title "${TITLE}" --body-file -
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
