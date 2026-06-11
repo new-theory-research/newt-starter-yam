@@ -64,6 +64,18 @@ norm_starter = normalize(starter_text)
 
 if norm_canonical == norm_starter:
     print("Skill sync OK — starter matches canonical (hardware-specific section excluded)")
+
+    # Dead docs domains must never appear anywhere in the starter skill,
+    # including hardware-specific blocks. The live domain is newtheory-docs.vercel.app.
+    forbidden = ("docs.newtheory.ai", "nt-docs-eight.vercel.app")
+    hits = [(n, line) for n, line in enumerate(starter_text.splitlines(), start=1)
+            if any(domain in line for domain in forbidden)]
+    if hits:
+        for n, line in hits:
+            print(f"{starter_path}:{n}: {line.strip()}", file=sys.stderr)
+        print("error: dead docs domain in SKILL.md — the live domain is newtheory-docs.vercel.app", file=sys.stderr)
+        sys.exit(1)
+    print("Domain check OK — no dead docs domains")
     sys.exit(0)
 
 diff = list(difflib.unified_diff(
