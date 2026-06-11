@@ -111,9 +111,22 @@ export NT_API_KEY=your_key_here
 python run.py
 ```
 
+## Your embodiment class
+
+`embodiment.py` exports `YamBimanual` — the mock implementation of the newt Embodiment protocol. It lives in your repo, not the SDK:
+
+```python
+from embodiment import YamBimanual
+robot = newt.Robot(embodiment=YamBimanual.from_config())
+```
+
+`YamBimanual` implements two methods the SDK calls: `read_state()` returns a zero-state observation dict, and `execute(chunk)` logs the incoming action chunk. `from_config()` is where hardware initialization goes — the mock version just returns a new instance.
+
+When you wire real hardware, swap the method bodies. The class shape, the `from_config()` classmethod, and the import line in `run.py` stay identical.
+
 ## Wiring real hardware
 
-MA2-YAM hardware integration (i2rt drivers, joint mapping, gripper polarity) is bring-your-own. This starter validates the cloud contract end-to-end — swap the mock callbacks in `run.py` for real ones when you have hardware.
+MA2-YAM hardware integration (i2rt drivers, joint mapping, gripper polarity) is bring-your-own. This starter validates the cloud contract end-to-end — swap the `read_state` and `execute` implementations in `YamBimanual` (in `embodiment.py`) for real hardware callbacks when you have hardware.
 
 The MA2-YAM model uses a 14D bimanual joint state: left arm joints 0–6, right arm joints 7–13, gripper-last in each half. Cameras are `top_cam` (overhead), `left_cam` (left wrist), `right_cam` (right wrist) — the order is fixed and must match the trained contract.
 
