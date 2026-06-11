@@ -10,13 +10,13 @@ This kit validates the MA2-YAM cloud inference loop with mock callbacks. Real ha
 gh repo clone new-theory-research/newt-starter-yam
 cd newt-starter-yam
 uv sync
-export NT_API_KEY=your_key_here
+export NT_API_KEY=your_key_here  # or: newt login
 python run.py
 ```
 
 ## Prerequisites
 
-- **NT API key** — set as `NT_API_KEY` in your environment
+- **NT API key** — set as `NT_API_KEY` in your environment, or stored via `newt login`
 - **SSH key registered** with the `new-theory-research` GitHub org — required for `uv sync` to resolve the private `newt` SDK dep
 - **Python 3.11+** and [uv](https://docs.astral.sh/uv/getting-started/installation/) installed
 
@@ -40,7 +40,8 @@ Resolves `newt` (the New Theory SDK) and `numpy`. No hardware drivers.
 **3. Set your API key**
 
 ```bash
-export NT_API_KEY=your_key_here
+export NT_API_KEY=your_key_here  # env-var path
+# or: newt login                  # stores key in ~/.nt/credentials
 ```
 
 **4. Run**
@@ -104,10 +105,12 @@ The inference container is cold-starting. `ColdStartRetry` handles the retry aut
 
 **`NT_API_KEY` error on startup**
 
-`run.py` exits immediately if `NT_API_KEY` is not set. Set it in the same shell session:
+`run.py` exits immediately if no API key is found. Either set it in the environment, or run `newt login` once to store it in `~/.nt/credentials`:
 
 ```bash
-export NT_API_KEY=your_key_here
+export NT_API_KEY=your_key_here  # env-var path
+# or
+newt login                        # stores key in ~/.nt/credentials
 python run.py
 ```
 

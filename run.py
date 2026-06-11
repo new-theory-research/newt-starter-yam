@@ -7,7 +7,7 @@ come back. No robot hardware required.
 
 Usage:
     uv sync
-    export NT_API_KEY=<key>
+    export NT_API_KEY=<key>  # or: newt login
     python run.py
 
 Full runbook: README.md §Troubleshooting
@@ -20,17 +20,19 @@ import sys
 import time
 
 import newt
+from newt._credentials import read_api_key
 
 from embodiment import YamBimanual
 
 
 def main() -> None:
-    api_key = os.environ.get("NT_API_KEY")
+    # Env-first: NT_API_KEY overrides the stored file. Cite: newt._credentials module.
+    api_key = os.environ.get("NT_API_KEY") or read_api_key()
     if not api_key:
         print(
-            "Error: NT_API_KEY is not set.\n"
-            "Export your API key before running:\n"
-            "  export NT_API_KEY=<your-key>",
+            "Error: no API key found.\n"
+            "Set NT_API_KEY in your environment, or run `newt login` to store it:\n"
+            "  export NT_API_KEY=<your-key>  # or: newt login",
             file=sys.stderr,
         )
         sys.exit(1)
