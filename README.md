@@ -139,6 +139,23 @@ robot = newt.Robot(embodiment=YamBimanual.from_config())
 
 When you wire real hardware, swap the method bodies. The class shape, the `from_config()` classmethod, and the import line in `run.py` stay identical.
 
+### What `read_state()` returns
+
+`read_state()` returns a dict with two keys:
+
+| Key | Shape | Dtype | Contents |
+|---|---|---|---|
+| `state` | `(14,)` | float32 | Joint positions: left arm joints 0–6, right arm joints 7–13 |
+| `images` | `{cam: (3, 378, 378)}` | uint8 | CHW color frames, one per camera |
+
+Camera keys are `top_cam`, `left_cam`, `right_cam` in that order — the order is fixed by the MA2-YAM model contract. A mismatch returns error 4422. The mock returns zero state and blank (all-zero) frames of the correct shape; real hardware integration replaces these with live sensor reads.
+
+### What `execute(chunk)` does
+
+`execute(chunk)` receives a `(30, 14)` array — a 30-step action horizon from MA2-YAM, one 14D joint-position vector per step. The mock logs the chunk shape and first row; real hardware integration applies each row to the bimanual arm at the appropriate cadence.
+
+The 14 joint dimensions map directly to the state layout: joints 0–6 are the left arm (including gripper), joints 7–13 are the right arm (including gripper).
+
 ## Wiring real hardware
 
 MA2-YAM hardware integration (i2rt drivers, joint mapping, gripper polarity) is bring-your-own. This starter validates the cloud contract end-to-end — swap the `read_state` and `execute` implementations in `YamBimanual` (in `embodiment.py`) for real hardware callbacks when you have hardware.
