@@ -3,7 +3,7 @@ name: newt-onboarding
 description: Walk a developer through the New Theory golden path — install → login → models → Robot() → snapshot inference → hardware setup. Invoke when asked to "get me set up", "walk me through onboarding", or "help me get started with newt".
 ---
 
-<!-- canonical source: newt-python/src/newt/skills/newt-onboarding/SKILL.md — edit here only; starter copies are derived and verified by CI -->
+<!-- canonical source: newt-python/src/newt/skills/newt-onboarding/SKILL.md — edit there only; this copy is derived and verified by CI -->
 
 # New Theory onboarding guide
 
@@ -122,7 +122,7 @@ You've confirmed the API works. To drive a real robot:
 3. **Run the hardware check.**
 
    ```bash
-   python run.py --check
+   python3 run.py --check
    ```
 
    This verifies your config and hardware connectivity before any inference runs.
