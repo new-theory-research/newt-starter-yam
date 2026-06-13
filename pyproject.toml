@@ -3,7 +3,7 @@ name = "newt-starter-yam"
 version = "0.1.0"
 requires-python = ">=3.11"
 dependencies = [
-    "newt @ git+ssh://git@github.com/new-theory-research/newt-python.git@be432b2b3cda4f2702850accb0e3ff1286b716b9",
+    "newt @ git+ssh://git@github.com/new-theory-research/newt-python.git@32671a4005583982c2aba3f7f8f89764939a4ab6",
     "numpy>=1.26",
 ]
 
