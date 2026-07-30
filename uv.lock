@@ -125,8 +125,8 @@ wheels = [
 
 [[package]]
 name = "newt"
-version = "0.0.1"
-source = { git = "ssh://git@github.com/new-theory-research/newt-python.git?rev=70fe35527acdafb021eba6ad2f133e2f7d4faaef#70fe35527acdafb021eba6ad2f133e2f7d4faaef" }
+version = "0.0.3"
+source = { git = "ssh://git@github.com/new-theory-research/newt-python.git?rev=db32a2442400bfa00b63322b0c345e2a707763fa#db32a2442400bfa00b63322b0c345e2a707763fa" }
 dependencies = [
     { name = "httpx" },
     { name = "msgpack" },
@@ -151,7 +151,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "newt", git = "ssh://git@github.com/new-theory-research/newt-python.git?rev=70fe35527acdafb021eba6ad2f133e2f7d4faaef" },
+    { name = "newt", git = "ssh://git@github.com/new-theory-research/newt-python.git?rev=db32a2442400bfa00b63322b0c345e2a707763fa" },
     { name = "numpy", specifier = ">=1.26" },
 ]
 
