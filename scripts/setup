@@ -37,7 +37,9 @@ if [ "$PWD" != "$KIT_DIR" ]; then
 fi
 cd "$KIT_DIR"
 
+UV_RAN=0
 if command -v uv >/dev/null 2>&1; then
+  UV_RAN=1
   if [ "$(uname -s)" = "Linux" ]; then
     echo "[setup] Linux — resolving the environment with no hardware extra, because yam has none to" >&2
     echo "[setup] add: this is a plain \`uv sync\` of the newt SDK and numpy. On a rig this is still" >&2
@@ -58,4 +60,66 @@ else
   echo "" >&2
   echo "      curl -LsSf https://astral.sh/uv/install.sh | sh" >&2
   echo "" >&2
+fi
+
+# The config step. newt keeps site config at ~/.config/nt/nt.toml — the path
+# conf/nt.toml.example's own header tells you to copy it to. yam needs nothing in
+# that file to run: it takes its key from NT_API_KEY and its observations from mock
+# callbacks. The template is put in place for the day this kit gets wired to real
+# hardware, and the report below says exactly that rather than implying the copy
+# configured something.
+#
+# What this step will not do is touch a config that is already there. A yam
+# developer is very likely a trossen developer whose ~/.config/nt/nt.toml holds a
+# live rig's arm IPs, camera serials and extrinsics. Overwriting that — or asking a
+# yes/no question about it, which is the same clobber with a keystroke in front of
+# it — is how the mock kit's setup breaks a real one. It reports what it found and
+# leaves it alone.
+NT_CONFIG_DIR="${HOME:?setup writes the config under \$HOME, which is not set in this shell}/.config/nt"
+NT_CONFIG_FILE="$NT_CONFIG_DIR/nt.toml"
+NT_CONFIG_TEMPLATE="$KIT_DIR/conf/nt.toml.example"
+
+if [ ! -f "$NT_CONFIG_TEMPLATE" ]; then
+  echo "error: this kit has no conf/nt.toml.example, so there is no template to install. That is a" >&2
+  echo "error: broken checkout of newt-starter-yam rather than anything you did — re-clone the kit." >&2
+  echo "error: Nothing under $NT_CONFIG_DIR was read or written." >&2
+  exit 1
+fi
+
+if [ -e "$NT_CONFIG_FILE" ] && [ ! -f "$NT_CONFIG_FILE" ]; then
+  echo "error: $NT_CONFIG_FILE exists but is not a regular file, so this script cannot tell whether" >&2
+  echo "error: replacing it would destroy something you rely on, and will not guess. Move or remove" >&2
+  echo "error: it yourself, then re-run. Nothing was written." >&2
+  exit 1
+fi
+
+if [ -f "$NT_CONFIG_FILE" ]; then
+  if cmp -s "$NT_CONFIG_TEMPLATE" "$NT_CONFIG_FILE"; then
+    echo "[setup] config: the nt.toml already at $NT_CONFIG_FILE" >&2
+    echo "[setup] is this kit's template, unedited. Left as it is; nothing was written." >&2
+  else
+    echo "[setup] config: the nt.toml already at $NT_CONFIG_FILE" >&2
+    echo "[setup] differs from this kit's template, so someone — you, or another starter kit's setup" >&2
+    echo "[setup] — has written it. Left exactly as it is: this script does not edit or replace a" >&2
+    echo "[setup] config it did not write, because that file is where a real rig's arm IPs and camera" >&2
+    echo "[setup] serials live. yam runs either way; it reads nothing out of it. To see how yours" >&2
+    echo "[setup] differs from what this kit ships:" >&2
+    echo "" >&2
+    echo "      diff \"$NT_CONFIG_FILE\" \"$NT_CONFIG_TEMPLATE\"" >&2
+    echo "" >&2
+  fi
+else
+  mkdir -p "$NT_CONFIG_DIR"
+  cp "$NT_CONFIG_TEMPLATE" "$NT_CONFIG_FILE"
+  echo "[setup] config: there was no nt.toml on this machine, so this kit's template is now at" >&2
+  echo "[setup] $NT_CONFIG_FILE" >&2
+  echo "[setup] It carries no values — yam needs none — and it is where you will put arm IPs, camera" >&2
+  echo "[setup] serials and extrinsics if you wire this kit to real hardware." >&2
+fi
+
+if [ "$UV_RAN" = "1" ]; then
+  echo "[setup] next: export NT_API_KEY=your_key_here, then \`uv run python run.py\`." >&2
+else
+  echo "[setup] next: install uv with the line above and re-run ./scripts/setup — the environment is" >&2
+  echo "[setup] not installed yet, so \`uv run python run.py\` has nothing to run." >&2
 fi
