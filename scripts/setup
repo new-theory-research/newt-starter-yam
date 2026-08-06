@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+# scripts/setup — get this machine ready to run the yam starter.
+#
+# Two jobs, in order:
+#
+#   1. Resolve the environment, and say which install this machine got. yam is a
+#      mock-callback cloud-inference kit: it has no hardware extra today, so both
+#      platform arms below run the same `uv sync`. They are still two arms, because
+#      the sentence a developer needs to read differs — and because when yam grows
+#      real drivers, exactly one line changes (YAM_HARDWARE_EXTRAS, below).
+#
+#   2. Put the kit's config template where newt looks for it, without disturbing a
+#      config that is already there.
+#
+# Which install ran is printed, not assumed — a machine that quietly got the wrong
+# sync is the failure this script exists to stop, and this kit does not get to hide
+# that just because its two arms currently agree.
+#
+# The trossen kit's scripts/setup is the shape this mirrors. One difference: that kit
+# has drivers to install and a rig to discover, so its config step is a Python program
+# beside this shim. yam's config step is a file copy, so it stays in this file.
+set -euo pipefail
+
+KIT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+# The extras the Linux arm installs. Empty, and named rather than absent: yam's
+# pyproject.toml has no [project.optional-dependencies] table at all, because real
+# hardware wiring is the developer's (README, "Wiring real hardware"). When yam grows
+# a `hardware` extra, this is the line that gains `--extra hardware` and nothing else
+# in this script changes. Expanded unquoted below on purpose — an empty value has to
+# expand to no argument at all, not to an empty one.
+YAM_HARDWARE_EXTRAS=""
+
+if [ "$PWD" != "$KIT_DIR" ]; then
+  echo "[setup] running against $KIT_DIR — the kit this script lives in, not the directory you" >&2
+  echo "[setup] called it from ($PWD). Everything below installs into and reads from that kit." >&2
+fi
+cd "$KIT_DIR"
+
+if command -v uv >/dev/null 2>&1; then
+  if [ "$(uname -s)" = "Linux" ]; then
+    echo "[setup] Linux — resolving the environment with no hardware extra, because yam has none to" >&2
+    echo "[setup] add: this is a plain \`uv sync\` of the newt SDK and numpy. On a rig this is still" >&2
+    echo "[setup] the whole install; yam sends mock observations to a cloud model, and nothing it" >&2
+    echo "[setup] installs can drive an arm." >&2
+    # shellcheck disable=SC2086 # empty must expand to zero arguments — see YAM_HARDWARE_EXTRAS
+    uv sync $YAM_HARDWARE_EXTRAS
+  else
+    echo "[setup] $(uname -s) — resolving the environment. This is the same install a Linux rig gets" >&2
+    echo "[setup] today, because yam is a mock-callback cloud-inference kit with no hardware deps on" >&2
+    echo "[setup] any platform. Nothing was skipped for this being a laptop." >&2
+    uv sync
+  fi
+else
+  echo "warn: \`uv\` is not on PATH, so nothing was installed — \`import newt\` will fail until" >&2
+  echo "warn: something installs it, and \`python run.py\` will not reach the model. Install uv and" >&2
+  echo "warn: re-run this script to get a runnable environment." >&2
+  echo "" >&2
+  echo "      curl -LsSf https://astral.sh/uv/install.sh | sh" >&2
+  echo "" >&2
+fi
