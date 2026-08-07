@@ -9,10 +9,12 @@ This kit validates the MA2-YAM cloud inference loop with mock callbacks. Real ha
 ```bash
 gh repo clone new-theory-research/newt-starter-yam
 cd newt-starter-yam
-uv sync
+./scripts/setup
 export NT_API_KEY=your_key_here  # or: newt login
 python run.py
 ```
+
+`./scripts/setup` installs the deps and says which install this machine got, then puts the kit's `conf/nt.toml.example` at `~/.config/nt/nt.toml` — leaving an existing config alone if you already have one.
 
 ## Prerequisites
 
@@ -44,10 +46,24 @@ cd newt-starter-yam
 **2. Install dependencies**
 
 ```bash
-uv sync
+./scripts/setup
 ```
 
-Resolves `newt` (the New Theory SDK) and `numpy`. No hardware drivers.
+Resolves `newt` (the New Theory SDK) and `numpy` — no hardware drivers — and prints which install this machine got, so a plain laptop sync never passes for a rig one. It then copies `conf/nt.toml.example` to `~/.config/nt/nt.toml` if nothing is there. If a config already is, it says what it found and leaves the file untouched: that path is where a Trossen rig keeps its arm IPs and camera serials, and this kit will not overwrite them. yam reads nothing out of the file; the template is placed for the day you wire real hardware.
+
+This is also the command `newt` prints when the SDK can't import a driver, so running it is how you repair a broken environment later.
+
+<details>
+<summary>Manual path — what the script runs</summary>
+
+```bash
+uv sync
+mkdir -p ~/.config/nt && cp conf/nt.toml.example ~/.config/nt/nt.toml  # only if you have no nt.toml
+```
+
+`uv sync` alone is enough to run the kit. The script exists so the install is one command and so it reports what it did.
+
+</details>
 
 **3. Set your API key**
 

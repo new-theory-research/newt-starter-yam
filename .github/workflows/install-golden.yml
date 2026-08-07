@@ -2,7 +2,7 @@ name: Install golden
 
 # ── YAM starter install golden ──────────────────────────────────────────────
 # Guards the documented README install sequence on both platforms.
-# clone → uv sync → import embodiment → protocol check
+# clone → scripts/setup contract → ./scripts/setup → import embodiment → protocol check
 #
 # Private-dep secret required:
 #   NEWT_PYTHON_DEPLOY_KEY  — read access to new-theory-research/newt-python
@@ -55,8 +55,14 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v4
 
-      - name: Install dependencies
-        run: uv sync
+      # Runs before the install and standalone (uvx, no project sync) so a lost
+      # scripts/setup — or a lost mode bit — reports itself by name here, instead
+      # of surfacing as a bare "permission denied" from the install step below.
+      - name: Setup script contract — present, executable, committed 100755
+        run: uvx pytest tests/test_setup_script_contract.py -v
+
+      - name: Install dependencies — the path the README teaches
+        run: ./scripts/setup
 
       - name: Import clean — embodiment importable without hardware or config
         run: |
