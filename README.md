@@ -11,7 +11,7 @@ gh repo clone new-theory-research/newt-starter-yam
 cd newt-starter-yam
 ./scripts/setup
 export NT_API_KEY=your_key_here  # or: newt login
-python run.py
+uv run python run.py
 ```
 
 `./scripts/setup` installs the deps and says which install this machine got, then puts the kit's `conf/nt.toml.example` at `~/.config/nt/nt.toml` — leaving an existing config alone if you already have one.
@@ -75,8 +75,10 @@ export NT_API_KEY=your_key_here  # env-var path
 **4. Run**
 
 ```bash
-python run.py
+uv run python run.py
 ```
+
+`uv run` is what puts the deps `./scripts/setup` installed on the path. A bare `python run.py` only works in a shell where you have activated `.venv` yourself.
 
 ## What success looks like
 
